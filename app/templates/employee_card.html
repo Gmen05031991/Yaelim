@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>פרטי עובד</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow space-y-6">
+
+    <div class="flex justify-between items-center">
+      <h1 class="text-xl font-bold">כרטיס עובד: {{ employee.first_name }} {{ employee.last_name }}</h1>
+      <a href="/employees/{{ employee.id }}/edit" class="bg-yellow-400 px-4 py-2 text-white rounded hover:bg-yellow-500">ערוך</a>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+      <div><strong>מספר עובד:</strong> {{ employee.internal_id }}</div>
+      <div><strong>טלפון:</strong> {{ employee.phone }}</div>
+      <div><strong>תאריך לידה:</strong> {{ employee.birth_date }}</div>
+      <div><strong>דרכון/ויזה:</strong> {{ employee.passport_number }}</div>
+      <div><strong>תוקף ויזה:</strong> {{ employee.visa_expiry }}</div>
+      <div><strong>סטטוס:</strong> {{ employee.status }}</div>
+      <div class="col-span-2"><strong>כתובת:</strong> {{ employee.address }}</div>
+    </div>
+
+    <!-- Documents -->
+    <div>
+      <h2 class="font-bold text-sm mb-2">מסמכים</h2>
+      <form method="post" enctype="multipart/form-data" action="/employees/{{ employee.id }}/upload" class="flex gap-2 items-center">
+        <input type="file" name="file" class="border p-1 rounded text-sm">
+        <button class="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700 text-sm">העלה</button>
+        <a href="/employees" class="inline-block mt-4 text-sm text-blue-600 hover:underline">← חזור לרשימת העובדים</a>
+
+      </form>
+      <ul class="mt-2 text-sm list-disc list-inside">
+        {% for doc in documents %}
+          <li>{{ doc.filename }}</li>
+        {% else %}
+          <li class="text-gray-400">אין מסמכים</li>
+        {% endfor %}
+        <a href="/employees" class="inline-block mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
+  ← חזור לרשימת העובדים
+</a>
+
+
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

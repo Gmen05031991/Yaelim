@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>הוספת עובד</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-lg font-bold mb-4">הוסף עובד חדש</h1>
+    <form method="post">
+      <div class="grid grid-cols-1 gap-4">
+        <input name="internal_id" placeholder="מספר עובד" class="border p-2 rounded">
+        <input name="first_name" placeholder="שם פרטי" class="border p-2 rounded">
+        <input name="last_name" placeholder="שם משפחה" class="border p-2 rounded">
+        <input name="phone" placeholder="טלפון" class="border p-2 rounded">
+        <input name="birth_date" type="date" class="border p-2 rounded">
+        <input name="passport_number" placeholder="מספר דרכון/ויזה" class="border p-2 rounded">
+        <input name="visa_expiry" type="date" class="border p-2 rounded">
+        <input name="address" placeholder="כתובת" class="border p-2 rounded">
+        <select name="status" class="border p-2 rounded">
+          <option>עובד</option>
+          <option>סיים</option>
+        </select>
+      </div>
+      <div class="mt-4 text-left">
+        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">שמור</button>
+        <a href="/employees" class="inline-block mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
+  ← חזור לרשימת העובדים
+</a>
+
+
+      </div>
+    </form>
+  </div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>עריכת עובד</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-lg font-bold mb-4">עריכת עובד: {{ employee.first_name }} {{ employee.last_name }}</h1>
+    <form method="post">
+      <div class="grid grid-cols-1 gap-4">
+        <input name="first_name" value="{{ employee.first_name }}" placeholder="שם פרטי" class="border p-2 rounded">
+        <input name="last_name" value="{{ employee.last_name }}" placeholder="שם משפחה" class="border p-2 rounded">
+        <input name="phone" value="{{ employee.phone }}" placeholder="טלפון" class="border p-2 rounded">
+        <!-- תאריך לידה -->
+<div class="mb-4">
+  <label class="block text-sm font-medium text-gray-700">תאריך לידה</label>
+  <input type="date" name="birth_date" value="{{ employee.birth_date }}" class="mt-1 block w-full border rounded p-2 text-sm">
+</div>
+        <input name="passport_number" value="{{ employee.passport_number }}" placeholder="מספר דרכון/ויזה" class="border p-2 rounded">
+        <!-- תוקף ויזה -->
+<div class="mb-4">
+  <label class="block text-sm font-medium text-gray-700">תוקף ויזה</label>
+  <input type="date" name="visa_expiry" value="{{ employee.visa_expiry }}" class="mt-1 block w-full border rounded p-2 text-sm">
+</div>
+        <input name="address" value="{{ employee.address }}" placeholder="כתובת" class="border p-2 rounded">
+        <select name="status" class="border p-2 rounded">
+          <option value="עובד" {% if employee.status == "עובד" %}selected{% endif %}>עובד</option>
+          <option value="סיים" {% if employee.status == "סיים" %}selected{% endif %}>סיים</option>
+        </select>
+      </div>
+     <div class="mt-4 text-left space-y-2">
+  <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">שמור שינויים</button>
+  <div>
+    <a href="/employees" class="inline-block mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
+  ← חזור לרשימת העובדים
+</a>
+
+  </div>
+</div>
+</form>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
