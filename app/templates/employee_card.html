@@ -52,7 +52,27 @@
     <h3 class="font-bold mt-6 text-right">הערות:</h3>
 <ul class="text-sm text-gray-700 space-y-1">
   {% for note in employee.notes %}
-    <li class="border p-2 rounded bg-gray-100">{{ note.content }} <span class="text-xs text-gray-400 float-left">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span></li>
+    <li class="border p-2 rounded bg-gray-100 flex justify-between items-center">
+      <div>
+        {{ note.content }}
+        <span class="text-xs text-gray-400 block">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+      </div>
+      <button onclick="openModal('note-{{ note.id }}')" class="text-red-600 hover:underline text-sm">🗑</button>
+
+      <!-- Модальное окно -->
+      <div id="modal-note-{{ note.id }}" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded shadow max-w-sm w-full">
+          <h2 class="text-lg font-semibold mb-4">אישור מחיקה</h2>
+          <p class="mb-4 text-sm text-gray-700">האם אתה בטוח שברצונך למחוק את ההערה?</p>
+          <form method="post" action="/{{ note.id }}/delete" class="flex justify-end gap-2">
+            <button type="button" onclick="closeModal('note-{{ note.id }}')" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">ביטול</button>
+            <button type="submit" class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">מחק</button>
+          </form>
+        </div>
+      </div>
+    </li>
+  {% else %}
+    <p class="text-gray-400 text-sm">אין הערות</p>
   {% endfor %}
 </ul>
 

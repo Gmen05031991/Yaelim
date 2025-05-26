@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>הוספת משימה</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container mt-5">
+    <div class="card shadow">
+      <div class="card-body">
+        <h4 class="card-title text-center mb-4 fw-bold">הוספת משימה חדשה</h4>
+
+        <form method="post" action="/tasks/add" class="row g-3">
+          <div class="col-12">
+            <label for="title" class="form-label">כותרת</label>
+            <input type="text" class="form-control" name="title" required>
+          </div>
+
+          <div class="col-12">
+            <label for="description" class="form-label">תיאור</label>
+            <textarea class="form-control" name="description" rows="3"></textarea>
+          </div>
+
+          <div class="col-md-6">
+            <label for="due_date" class="form-label">תאריך יעד</label>
+            <input type="date" class="form-control" name="due_date" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="employee_id" class="form-label">שיוך לעובד (לא חובה)</label>
+            <select name="employee_id" class="form-select">
+              <option value="">ללא שיוך</option>
+              {% for emp in employees %}
+                <option value="{{ emp.id }}">{{ emp.first_name }} {{ emp.last_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-12 d-flex justify-content-between mt-4">
+            <a href="/tasks" class="btn btn-secondary">ביטול</a>
+            <button type="submit" class="btn btn-success">שמור</button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

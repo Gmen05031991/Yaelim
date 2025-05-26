@@ -104,13 +104,68 @@ async def employee_list(
         "visa_chart_labels": visa_chart_labels,
         "visa_chart_data": visa_chart_data,
        
-        "companies": companies
-        
-        
-        
+        "companies": companies   
         
     })
 
+# ===== ДОБАВЛЕНИЕ СОТРУДНИКА (ФОРМА) =====
+@router.get("/add", response_class=HTMLResponse)
+async def add_employee_form(request: Request, db: Session = Depends(get_db)):
+    companies = db.query(Company).all()
+    return templates.TemplateResponse("employee_add.html", {
+        "request": request,
+        "companies": companies
+    })
+
+
+# ===== ДОБАВЛЕНИЕ СОТРУДНИКА (POST) =====
+@router.post("/add")
+async def add_employee(
+    request: Request,
+    internal_id: str = Form(...),
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    phone: str = Form(...),
+    birth_date: str = Form(...),
+    passport_number: str = Form(...),
+    visa_expiry: str = Form(...),
+    address: str = Form(...),
+    status: str = Form(...),
+    company_id: int = Form(...),
+    db: Session = Depends(get_db)
+):
+    # Проверка на уникальность internal_id
+    existing = db.query(models.Employee).filter_by(internal_id=internal_id).first()
+    if existing:
+        companies = db.query(Company).all()
+        error_message = "המספר עובד כבר קיים במערכת"
+        return templates.TemplateResponse("employee_add.html", {
+            "request": request,
+            "companies": companies,
+            "error": error_message
+        })
+
+    # Преобразование дат
+    birth_date_parsed = datetime.strptime(birth_date, "%Y-%m-%d").date()
+    visa_expiry_parsed = datetime.strptime(visa_expiry, "%Y-%m-%d").date()
+
+    # Создание нового работника
+    employee = models.Employee(
+        internal_id=internal_id,
+        first_name=first_name,
+        last_name=last_name,
+        phone=phone,
+        birth_date=birth_date_parsed,
+        passport_number=passport_number,
+        visa_expiry=visa_expiry_parsed,
+        address=address,
+        status=status,
+        company_id=company_id
+    )
+
+    db.add(employee)
+    db.commit()
+    return RedirectResponse("/employees", status_code=303)
 
 @router.get("/{employee_id}/edit", response_class=HTMLResponse)
 async def edit_employee_form(employee_id: int, request: Request, db: Session = Depends(get_db)):
@@ -122,54 +177,6 @@ async def edit_employee_form(employee_id: int, request: Request, db: Session = D
         "companies": companies  # ⬅️ И ЭТО
     })
 
-@router.post("/add")
-async def add_employee(
-     request: Request,
-    internal_id: str = Form(...),
-    first_name: str = Form(...),
-    last_name: str = Form(...),
-    phone: str = Form(...),
-    birth_date: str = Form(...),  # ← это строка
-    passport_number: str = Form(...),
-    visa_expiry: str = Form(...),  # ← тоже строка
-    address: str = Form(...),
-    status: str = Form(...),
-    db: Session = Depends(get_db)):
-
-    
-
-    employee = models.Employee(
-        internal_id=internal_id,
-        first_name=first_name,
-        last_name=last_name,
-        phone=phone,
-        birth_date=birth_date,
-        passport_number=passport_number,
-        visa_expiry=visa_expiry,
-        address=address,
-        status=status
-    )
-
-     # 🔽 Преобразуем строки в объекты даты
-    birth_date_parsed = datetime.strptime(birth_date, "%Y-%m-%d").date()
-    visa_expiry_parsed = datetime.strptime(visa_expiry, "%Y-%m-%d").date()
-
-    employee = models.Employee(
-        internal_id=internal_id,
-        first_name=first_name,
-        last_name=last_name,
-        phone=phone,
-        birth_date=birth_date_parsed,  # 🔽 Передаём как date
-        passport_number=passport_number,
-        visa_expiry=visa_expiry_parsed,  # 🔽 Передаём как date
-        address=address,
-        status=status
-    )
-
-    db.add(employee)
-    db.commit()
-    return RedirectResponse("/employees", status_code=303)
-
 @router.get("/{employee_id}", response_class=HTMLResponse)
 async def employee_detail(employee_id: int, request: Request, db: Session = Depends(get_db)):
     employee = db.query(models.Employee).filter(models.Employee.id == employee_id).first()
@@ -180,13 +187,7 @@ async def employee_detail(employee_id: int, request: Request, db: Session = Depe
         "documents": documents
     })
 
-@router.get("/{employee_id}/edit", response_class=HTMLResponse)
-async def edit_employee_form(employee_id: int, request: Request, db: Session = Depends(get_db)):
-    employee = db.query(models.Employee).filter(models.Employee.id == employee_id).first()
-    return templates.TemplateResponse("employee_edit.html", {
-        "request": request,
-        "employee": employee
-    })
+
 
 @router.post("/{employee_id}/edit")
 async def update_employee(
@@ -276,21 +277,36 @@ async def import_employees_from_excel(file: UploadFile = File(...), db: Session 
             internal_id, first_name, last_name, phone, birth_date, passport_number, visa_expiry, address, status = row[:9]
 
             # Преобразуем даты
-            birth_date = birth_date if isinstance(birth_date, date) else datetime.strptime(birth_date, "%Y-%m-%d").date()
-            visa_expiry = visa_expiry if isinstance(visa_expiry, date) else datetime.strptime(visa_expiry, "%Y-%m-%d").date()
+            birth_date = birth_date if isinstance(birth_date, date) else datetime.strptime(str(birth_date), "%Y-%m-%d").date()
+            visa_expiry = visa_expiry if isinstance(visa_expiry, date) else datetime.strptime(str(visa_expiry), "%Y-%m-%d").date()
 
-            emp = models.Employee(
-                internal_id=internal_id,
-                first_name=first_name,
-                last_name=last_name,
-                phone=phone,
-                birth_date=birth_date,
-                passport_number=passport_number,
-                visa_expiry=visa_expiry,
-                address=address,
-                status=status,
-            )
-            db.add(emp)
+            # Проверка на существующего сотрудника
+            existing = db.query(models.Employee).filter_by(internal_id=internal_id).first()
+
+            if existing:
+                # Обновление существующего сотрудника
+                existing.first_name = first_name
+                existing.last_name = last_name
+                existing.phone = phone
+                existing.birth_date = birth_date
+                existing.passport_number = passport_number
+                existing.visa_expiry = visa_expiry
+                existing.address = address
+                existing.status = status
+            else:
+                # Добавление нового сотрудника
+                emp = models.Employee(
+                    internal_id=internal_id,
+                    first_name=first_name,
+                    last_name=last_name,
+                    phone=phone,
+                    birth_date=birth_date,
+                    passport_number=passport_number,
+                    visa_expiry=visa_expiry,
+                    address=address,
+                    status=status,
+                )
+                db.add(emp)
 
         db.commit()
         return RedirectResponse("/employees", status_code=303)

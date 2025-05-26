@@ -1,62 +1,102 @@
 {% extends "base.html" %}
-<a href="/tasks/{{ task.id }}/edit" class="text-blue-600 hover:underline text-xs">ערוך</a>
 
 {% block content %}
-<div class="max-w-4xl mx-auto mt-8 space-y-6">
-  <h1 class="text-xl font-bold text-gray-800 text-center">רשימת משימות</h1>
+<div class="max-w-4xl mx-auto space-y-6">
 
-  <!-- Task Form -->
-  <form method="post" action="/tasks/add" class="bg-white p-4 rounded shadow space-y-4">
+  <h1 class="text-xl font-bold text-center text-gray-800">רשימת משימות</h1>
+
+  <!-- Task Add Form -->
+  <form method="post" action="/tasks/add" class="bg-white p-6 rounded shadow space-y-4">
+    <h2 class="text-lg font-semibold mb-2">הוספת משימה חדשה</h2>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
-        <label class="block text-sm text-gray-600">כותרת</label>
+        <label class="block text-sm text-gray-600 mb-1">כותרת</label>
         <input type="text" name="title" class="w-full border p-2 rounded text-sm" required>
       </div>
+
       <div>
-        <label class="block text-sm text-gray-600">תאריך יעד</label>
+        <label class="block text-sm text-gray-600 mb-1">תאריך יעד</label>
         <input type="date" name="due_date" class="w-full border p-2 rounded text-sm" required>
       </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-sm text-gray-600 mb-1">פירוט על המשימה (לא חובה)</label>
+        <textarea name="description" class="w-full border p-2 rounded text-sm" rows="3"></textarea>
+      </div>
+
       <div>
-        <label class="block text-sm text-gray-600">סטטוס</label>
-        <select name="status" class="w-full border p-2 rounded text-sm" required>
-          <option value="פתוח">פתוח</option>
-          <option value="בוצע">בוצע</option>
+        <label class="block text-sm text-gray-600 mb-1">סטטוס</label>
+        <select name="status" class="w-full border p-2 rounded text-sm">
+          <option value="פעיל">פעיל</option>
+          <option value="הושלם">הושלם</option>
         </select>
       </div>
+
       <div>
-        <label class="block text-sm text-gray-600">עובד</label>
-        <input type="number" name="employee_id" class="w-full border p-2 rounded text-sm" placeholder="מספר מזהה עובד" required>
+        <label class="block text-sm text-gray-600 mb-1">שיוך לעובד (לא חובה)</label>
+        <select name="employee_id" class="w-full border p-2 rounded text-sm">
+          <option value="">ללא</option>
+          {% for emp in employees %}
+            <option value="{{ emp.id }}">{{ emp.first_name }} {{ emp.last_name }}</option>
+          {% endfor %}
+        </select>
       </div>
     </div>
-    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">הוסף משימה</button>
+
+    <div class="text-left mt-4">
+      <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 text-sm">
+        הוסף משימה
+      </button>
+    </div>
   </form>
 
-  <!-- Task Table -->
-  <div class="bg-white p-4 rounded shadow">
-    <table class="min-w-full text-sm">
-      <thead>
-        <tr class="border-b">
-          <th class="p-2 text-right">כותרת</th>
-          <th class="p-2 text-right">תאריך יעד</th>
-          <th class="p-2 text-right">סטטוס</th>
-          <th class="p-2 text-right">מזהה עובד</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for task in tasks %}
-        <tr class="border-b">
-          <td class="p-2">{{ task.title }}</td>
-          <td class="p-2">{{ task.due_date }}</td>
-          <td class="p-2">{{ task.status }}</td>
-          <td class="p-2">{{ task.employee_id }}</td>
-        </tr>
-        {% else %}
-        <tr>
-          <td colspan="4" class="text-center text-gray-500 p-4">אין משימות להצגה</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <!-- Task List -->
+  <ul class="space-y-3">
+    {% for task in tasks %}
+    <li class="border p-4 rounded bg-white flex justify-between items-center">
+      <div>
+        <p class="text-sm font-semibold text-gray-800">{{ task.title }}</p>
+        <p class="text-xs text-gray-500">{{ task.due_date }}</p>
+        {% if task.description %}
+        <p class="text-xs text-gray-600 mt-1">{{ task.description }}</p>
+        {% endif %}
+      </div>
+      <div class="flex gap-2">
+        <a href="/tasks/{{ task.id }}/edit" class="text-blue-600 hover:underline text-sm">✎ ערוך</a>
+        <button onclick="openModal('task-{{ task.id }}')" class="text-red-600 text-sm hover:underline">🗑</button>
+      </div>
+
+      <!-- Modal for Delete -->
+      <div id="modal-task-{{ task.id }}" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded shadow max-w-sm w-full">
+          <h2 class="text-lg font-semibold mb-4">אישור מחיקת משימה</h2>
+          <p class="mb-4 text-sm text-gray-700">האם אתה בטוח שברצונך למחוק את המשימה הזאת?</p>
+          <form method="post" action="/tasks/{{ task.id }}/delete" class="flex justify-end gap-2">
+            <button type="button" onclick="closeModal('task-{{ task.id }}')" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">ביטול</button>
+            <button type="submit" class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">מחק</button>
+          </form>
+        </div>
+      </div>
+    </li>
+    {% else %}
+    <li class="text-sm text-gray-500 text-center">אין משימות להצגה</li>
+    {% endfor %}
+  </ul>
+
+  <div class="text-center mt-8">
+    <a href="/employees" class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded text-sm font-medium">
+      ← חזרה לעמוד הראשי
+    </a>
   </div>
 </div>
 {% endblock %}
+
+<script>
+  function openModal(id) {
+    document.getElementById(`modal-${id}`).classList.remove("hidden");
+  }
+  function closeModal(id) {
+    document.getElementById(`modal-${id}`).classList.add("hidden");
+  }
+</script>

@@ -24,7 +24,8 @@ app = FastAPI(
 
 # Подключение шаблонов
 templates = Jinja2Templates(directory="app/templates")
-templates.env.globals["now"] = lambda: datetime.now()
+templates.env.globals["now"] = datetime.now
+
 templates.env.globals["timedelta"] = timedelta
 
 # Подключение роутеров

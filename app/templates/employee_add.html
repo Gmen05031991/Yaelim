@@ -2,36 +2,85 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>הוספת עובד</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <title>הוסף עובד חדש</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-lg font-bold mb-4">הוסף עובד חדש</h1>
-    <form method="post">
-      <div class="grid grid-cols-1 gap-4">
-        <input name="internal_id" placeholder="מספר עובד" class="border p-2 rounded">
-        <input name="first_name" placeholder="שם פרטי" class="border p-2 rounded">
-        <input name="last_name" placeholder="שם משפחה" class="border p-2 rounded">
-        <input name="phone" placeholder="טלפון" class="border p-2 rounded">
-        <input name="birth_date" type="date" class="border p-2 rounded">
-        <input name="passport_number" placeholder="מספר דרכון/ויזה" class="border p-2 rounded">
-        <input name="visa_expiry" type="date" class="border p-2 rounded">
-        <input name="address" placeholder="כתובת" class="border p-2 rounded">
-        <select name="status" class="border p-2 rounded">
-          <option>עובד</option>
-          <option>סיים</option>
-        </select>
-      </div>
-      <div class="mt-4 text-left">
-        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">שמור</button>
-        <a href="/employees" class="inline-block mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">
-  ← חזור לרשימת העובדים
-</a>
+<body class="bg-light">
+  <div class="container mt-5">
+    <div class="card shadow">
+      <div class="card-body">
+        <h4 class="card-title text-center mb-4 fw-bold">הוסף עובד חדש</h4>
+        <form method="post" action="/employees/add" class="row g-3">
+{% if error %}
+  <div class="alert alert-danger text-center fw-bold">
+    {{ error }}
+  </div>
+{% endif %}
+          <div class="col-md-6">
+            <label for="internal_id" class="form-label">מספר עובד</label>
+            <input type="text" class="form-control" name="internal_id" required>
+          </div>
 
+          <div class="col-md-6">
+            <label for="first_name" class="form-label">שם פרטי</label>
+            <input type="text" class="form-control" name="first_name" required>
+          </div>
 
+          <div class="col-md-6">
+            <label for="last_name" class="form-label">שם משפחה</label>
+            <input type="text" class="form-control" name="last_name" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="phone" class="form-label">טלפון</label>
+            <input type="text" class="form-control" name="phone" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="birth_date" class="form-label">תאריך לידה</label>
+            <input type="date" class="form-control" name="birth_date" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="visa_expiry" class="form-label">תוקף ויזה</label>
+            <input type="date" class="form-control" name="visa_expiry" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="passport_number" class="form-label">דרכון/ויזה</label>
+            <input type="text" class="form-control" name="passport_number" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="address" class="form-label">כתובת</label>
+            <input type="text" class="form-control" name="address" required>
+          </div>
+
+          <div class="col-md-6">
+            <label for="status" class="form-label">סטטוס</label>
+            <select name="status" class="form-select" required>
+              <option value="עובד" selected>עובד</option>
+              <option value="סיים">סיים</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label for="company_id" class="form-label">חברה</label>
+            <select name="company_id" class="form-select" required>
+              {% for company in companies %}
+                <option value="{{ company.id }}">{{ company.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-12 d-flex justify-content-between mt-4">
+            <a href="/employees" class="btn btn-danger">ביטול</a>
+            <button type="submit" class="btn btn-success">שמור</button>
+          </div>
+
+        </form>
       </div>
-    </form>
+    </div>
   </div>
 </body>
 </html>

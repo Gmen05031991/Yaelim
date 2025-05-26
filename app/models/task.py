@@ -6,9 +6,10 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
-    title = Column(String)
-    due_date = Column(Date)
-    status = Column(String)
-    employee_id = Column(Integer, ForeignKey("employees.id"))
+    title = Column(String, nullable=False)
+    description = Column(String)  # ✅ Добавлено поле для תיאור
+    due_date = Column(Date, nullable=False)
+    status = Column(String, nullable=False)
 
-    employee = relationship("Employee", back_populates="tasks")
+    employee_id = Column(Integer, ForeignKey("employees.id"), nullable=True)
+    employee = relationship("Employee", back_populates="tasks", lazy="joined")

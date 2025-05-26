@@ -28,5 +28,4 @@ class Employee(Base):
 
     documents = relationship(Document, back_populates="employee")
     company = relationship(Company, back_populates="employees")  # 💡 ЭТА СТРОКА ОБЯЗАТЕЛЬНА
-    tasks = relationship("Task", back_populates="employee")
-    
+    tasks = relationship("Task", back_populates="employee", cascade="all, delete")
