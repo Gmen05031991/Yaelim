@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>רשימת חברות</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow space-y-6">
+    <div class="flex justify-between items-center">
+      <h1 class="text-xl font-bold">חברות</h1>
+      <a href="/companies/add" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ הוסף חברה</a>
+    </div>
+
+    <table class="w-full text-right text-sm border">
+      <thead class="bg-gray-100 text-gray-700">
+        <tr>
+          <th class="p-2 border">#</th>
+          <th class="p-2 border">שם חברה</th>
+          <th class="p-2 border">פעולות</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for company in companies %}
+        <tr class="border-b">
+          <td class="p-2 border">{{ company.id }}</td>
+          <td class="p-2 border">{{ company.name }}</td>
+          <td class="p-2 border space-x-2 space-x-reverse">
+            <a href="/companies/{{ company.id }}/edit" class="text-yellow-600 hover:underline">ערוך</a>
+            <a href="/companies/{{ company.id }}/delete" class="text-red-600 hover:underline">מחק</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="text-center p-4 text-gray-400">אין חברות כרגע</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <a href="/employees" class="inline-block text-sm text-blue-600 hover:underline">← חזור לעובדים</a>
+  </div>
+</body>
+</html>

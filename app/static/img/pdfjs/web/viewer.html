@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>PDF Viewer</title>
+  <script src="../pdf.js"></script>
+</head>
+<body>
+  <iframe id="pdf-frame" width="100%" height="1000px"></iframe>
+  <script>
+    const url = new URLSearchParams(window.location.search).get('file');
+    if (url) {
+      document.getElementById('pdf-frame').src = url;
+    } else {
+      document.body.innerHTML = "<h2>No PDF file specified</h2>";
+    }
+  </script>
+</body>
+</html>

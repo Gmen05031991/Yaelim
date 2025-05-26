@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>עריכת עובד</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow space-y-6">
+    <h1 class="text-xl font-bold text-right">עריכת פרטי עובד</h1>
+
+    <form method="post" action="/employees/{{ employee.id }}/edit" class="grid grid-cols-2 gap-4 text-sm text-right">
+
+      <div>
+        <label class="block mb-1">שם פרטי</label>
+        <input type="text" name="first_name" value="{{ employee.first_name }}" class="border p-2 rounded w-full">
+      </div>
+
+      <div>
+        <label class="block mb-1">שם משפחה</label>
+        <input type="text" name="last_name" value="{{ employee.last_name }}" class="border p-2 rounded w-full">
+      </div>
+
+      <div>
+        <label class="block mb-1">מספר עובד</label>
+        <input type="text" name="internal_id" value="{{ employee.internal_id }}" class="border p-2 rounded w-full">
+      </div>
+
+      <div>
+        <label class="block mb-1">טלפון</label>
+        <input type="text" name="phone" value="{{ employee.phone }}" class="border p-2 rounded w-full">
+      </div>
+
+      <div>
+        <label class="block mb-1">דרכון/ויזה</label>
+        <input type="text" name="passport_number" value="{{ employee.passport_number }}" class="border p-2 rounded w-full">
+      </div>
+
+      <div>
+        <label class="block mb-1">כתובת</label>
+        <input type="text" name="address" value="{{ employee.address }}" class="border p-2 rounded w-full">
+      </div>
+
+      <div>
+        <label class="block mb-1">תאריך לידה</label>
+        <input type="date" name="birth_date" value="{{ employee.birth_date }}" class="border p-2 rounded w-full">
+      </div>
+
+      <div>
+        <label class="block mb-1">תחילת עבודה</label>
+        <input type="date" name="start_date" value="{{ employee.start_date }}" class="border p-2 rounded w-full">
+      </div>
+
+      <div>
+        <label class="block mb-1">תוקף ויזה</label>
+        <input type="date" name="visa_expiry" value="{{ employee.visa_expiry }}" class="border p-2 rounded w-full">
+      </div>
+
+      <div>
+        <label class="block mb-1">סטטוס</label>
+        <select name="status" class="border p-2 rounded w-full">
+          <option value="עובד" {% if employee.status == 'עובד' %}selected{% endif %}>עובד</option>
+          <option value="בהשמה" {% if employee.status == 'בהשמה' %}selected{% endif %}>בהשמה</option>
+          <option value="לא פעיל" {% if employee.status == 'לא פעיל' %}selected{% endif %}>לא פעיל</option>
+          <option value="הסתיים" {% if employee.status == 'הסתיים' %}selected{% endif %}>הסתיים</option>
+        </select>
+      </div>
+
+       <div>
+    <label class="block mb-1">חברה</label>
+    <select name="company_id" class="border p-2 rounded w-full">
+      {% for company in companies %}
+      <option value="{{ company.id }}" {% if employee.company_id == company.id %}selected{% endif %}>
+        {{ company.name }}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+
+
+      <!-- ✅ Кнопки ВНУТРИ формы -->
+      <div class="col-span-2 text-left mt-4 flex gap-2">
+  <!-- שמור -->
+  <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-xl hover:bg-green-700 transition">
+    שמור
+  </button>
+
+  <!-- ביטול -->
+  <a href="/employees/{{ employee.id }}" class="bg-red-600 text-white px-6 py-2 rounded-xl hover:bg-red-700 transition">
+    ביטול
+  </a>
+</div>
+
+
+    </form>
+  </div>
+</body>
+</html>

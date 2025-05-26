@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>פרטי עובד</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="/static/img/pdfjs/pdf.js"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow space-y-6">
+
+    <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-xl font-bold">כרטיס עובד: {{ employee.first_name }} {{ employee.last_name }}</h1>
+  <div class="flex flex-wrap gap-2 mt-6 justify-start">
+  <!-- ערוך -->
+  <a href="/employees/{{ employee.id }}/edit"
+     class="text-center bg-yellow-400 text-white px-4 py-2 rounded-xl hover:bg-yellow-500 transition">
+    ✎ ערוך
+  </a>
+
+  <!-- חזור לרשימה -->
+  <a href="/employees"
+     class="text-center bg-gray-400 text-white px-4 py-2 rounded-xl hover:bg-gray-500 transition">
+    ← חזור לרשימה
+  </a>
+
+  <!-- מחק עובד -->
+  <button onclick="openModal('delete-employee')"
+          class="text-center bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition">
+    🗑 מחק עובד
+  </button>
+</div>
+
+
+  </div>
+
+ 
+
+  <div class="grid grid-cols-2 gap-4 text-sm text-gray-700">
+    <div><strong>מספר עובד:</strong> {{ employee.internal_id }}</div>
+    <div><strong>טלפון:</strong> {{ employee.phone }}</div>
+    <div><strong>דרכון/ויזה:</strong> {{ employee.passport_number }}</div>
+    <div><strong>כתובת:</strong> {{ employee.address }}</div>
+    <div><strong>תאריך לידה:</strong> {{ employee.birth_date }}</div>
+    <div><strong>תחילת עבודה:</strong> {{ employee.start_date }}</div>
+    <div><strong>תוקף ויזה:</strong> {{ employee.visa_expiry }}</div>
+    <div><strong>חברה:</strong> {{ employee.company.name if employee.company else "—" }}</div>
+    <div><strong>סטטוס:</strong> {{ employee.status }}</div>
+  </div>
+
+    <h3 class="font-bold mt-6 text-right">הערות:</h3>
+<ul class="text-sm text-gray-700 space-y-1">
+  {% for note in employee.notes %}
+    <li class="border p-2 rounded bg-gray-100">{{ note.content }} <span class="text-xs text-gray-400 float-left">{{ note.created_at.strftime('%Y-%m-%d %H:%M') }}</span></li>
+  {% endfor %}
+</ul>
+
+<form method="post" action="/employees/{{ employee.id }}/add_note" class="mt-4">
+  <textarea name="content" class="w-full border p-2 rounded text-sm" placeholder="כתוב הערה..."></textarea>
+  <button type="submit" class="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700 mt-2">שמור הערה</button>
+</form>
+
+
+    <!-- Documents -->
+    <div>
+      <h2 class="font-bold text-sm mb-2">מסמכים</h2>
+      <form method="post" enctype="multipart/form-data" action="/employees/{{ employee.id }}/upload" class="flex gap-2 items-center mt-2">
+  <input type="file" name="file" class="border p-1 rounded text-sm">
+  <button class="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700 text-sm">העלה</button>
+  
+</form>
+      </form>
+
+      <h3 class="font-bold mt-6 text-right">מסמכים מצורפים:</h3>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        {% for doc in documents %}
+        <div class="border rounded-lg p-2 bg-gray-50 text-right shadow hover:shadow-md">
+          
+          {% if doc.filename.endswith(".jpg") or doc.filename.endswith(".jpeg") or doc.filename.endswith(".png") %}
+            <img src="/uploads/{{ doc.filename }}" alt="{{ doc.filename }}" class="w-full h-32 object-cover rounded" />
+          
+          {% elif doc.filename.endswith(".pdf") %}
+            <iframe
+              src="/static/img/pdfjs/web/viewer.html?file=/uploads/{{ doc.filename }}"
+              class="w-full h-32 rounded bg-white"
+              frameborder="0">
+            </iframe>
+          {% else %}
+            <img src="/static/icons/file_icon.png" alt="File" class="w-10 h-10 mx-auto mb-2" />
+          {% endif %}
+
+          <div class="flex flex-col text-xs items-start mt-1">
+            <a href="/uploads/{{ doc.filename }}" download class="text-blue-600 hover:underline truncate">
+              {{ doc.filename }}
+            </a>
+
+            {% if doc.filename.endswith('.pdf') %}
+            <a href="/static/img/pdfjs/web/viewer.html?file=/uploads/{{ doc.filename }}" class="text-green-600 hover:underline" target="_blank">
+  תצוגה
+</a>
+
+            {% endif %}
+
+            <!-- Кнопка "מחק" с модальным окном -->
+            <button onclick="openModal('{{ doc.id }}')" class="text-red-600 mt-1 hover:text-red-800">
+              🗑 מחק
+            </button>
+
+            <!-- Модальное окно -->
+            <div id="modal-{{ doc.id }}" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+              <div class="bg-white p-6 rounded shadow max-w-sm w-full">
+                <h2 class="text-lg font-semibold mb-4">אישור מחיקה</h2>
+                <p class="mb-4 text-sm text-gray-700">אתה בטוח שברצונך למחוק את הקובץ?</p>
+                <form method="post" action="/employees/{{ employee.id }}/delete_document/{{ doc.id }}" class="flex justify-end gap-2">
+                  <button type="button" onclick="closeModal('{{ doc.id }}')" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">ביטול</button>
+                  <button type="submit" class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">מחק</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JS для открытия/закрытия модального окна -->
+  <script>
+    function openModal(id) {
+      document.getElementById(`modal-${id}`).classList.remove("hidden");
+    }
+    function closeModal(id) {
+      document.getElementById(`modal-${id}`).classList.add("hidden");
+    }
+  </script>
+  <!-- Модальное окно удаления работника -->
+<div id="modal-delete-employee" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+  <div class="bg-white p-6 rounded shadow max-w-sm w-full">
+    <h2 class="text-lg font-semibold mb-4">אישור מחיקת עובד</h2>
+    <p class="mb-4 text-sm text-gray-700">האם אתה בטוח שברצונך למחוק את כרטיס העובד הזה?</p>
+    <form method="post" action="/employees/{{ employee.id }}/delete" class="flex justify-end gap-2">
+      <button type="button" onclick="closeModal('delete-employee')" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300">ביטול</button>
+      <button type="submit" class="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700">מחק</button>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>
